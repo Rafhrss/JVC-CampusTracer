@@ -4,7 +4,7 @@ import StatCard from '../components/dashboard/StatCard';
 import ItemCard from '../components/dashboard/ItemCard';
 import { supabase } from '../lib/supabase';
 import { generateEmbedding, analyzeMatch } from '../lib/gemini';
-import { AiMatchResult, Item } from '../types';
+import type { AiMatchResult, Item } from '../types';
 import { ArchiveRestore, PackageSearch, CheckCircle } from 'lucide-react';
 
 export default function Dashboard() {
@@ -103,7 +103,7 @@ export default function Dashboard() {
       });
 
       // Sort by match_percentage descending
-      finalResults.sort((a, b) => (b.match_percentage || 0) - (a.match_percentage || 0));
+      finalResults.sort((a: AiMatchResult, b: AiMatchResult) => (b.match_percentage || 0) - (a.match_percentage || 0));
 
       setSearchResults(finalResults);
 

@@ -15,7 +15,7 @@ export default function ReportItem() {
     last_location: '',
     date_event: new Date().toISOString().split('T')[0],
     reporter_name: '',
-    reporter_whatsapp: ''
+    reporter_contact: ''
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -45,7 +45,7 @@ export default function ReportItem() {
           date_event: formData.date_event,
           description_embedding: embedding,
           reporter_name: formData.reporter_name,
-          reporter_whatsapp: formData.reporter_whatsapp,
+          reporter_contact: formData.reporter_contact,
           is_resolved: false
         }
       ]);
@@ -56,8 +56,8 @@ export default function ReportItem() {
       navigate('/');
       
     } catch (error) {
-      console.error('Error submitting report:', error);
-      alert('Gagal menyimpan laporan. Pastikan konfigurasi Supabase dan Gemini benar.');
+      const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
+      alert(`Gagal menyimpan laporan.\n\nDetail Error: ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -197,7 +197,7 @@ export default function ReportItem() {
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <Phone className="h-5 w-5 text-slate-400" />
                   </div>
-                  <input required type="tel" name="reporter_whatsapp" value={formData.reporter_whatsapp} onChange={handleChange}
+                  <input required type="tel" name="reporter_contact" value={formData.reporter_contact} onChange={handleChange}
                     className="block w-full pl-10 pr-3 py-2.5 border border-slate-300 rounded-lg focus:ring-brand-500 focus:border-brand-500 sm:text-sm"
                     placeholder="081234567890" />
                 </div>

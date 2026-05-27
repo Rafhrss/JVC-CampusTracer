@@ -14,10 +14,9 @@ export interface Item {
   last_location: string;
   date_event: string;
   is_resolved: boolean;
-  created_by: string | null; // Can be null for guest mode temporarily, or we store the reporter's name in full_name
   // Custom fields for guest mode
   reporter_name?: string;
-  reporter_whatsapp?: string;
+  reporter_contact?: string;
 }
 
 export interface AiMatchResult {

@@ -1,4 +1,4 @@
-import { AiMatchResult } from '../../types';
+import type { AiMatchResult } from '../../types';
 import { MapPin, Calendar, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface ItemCardProps {
@@ -79,9 +79,9 @@ export default function ItemCard({ matchResult }: ItemCardProps) {
           <span className="text-slate-500">
             Pelapor: <span className="font-medium text-slate-700">{item.reporter_name || 'Anonim'}</span>
           </span>
-          {item.reporter_whatsapp && (
+          {item.reporter_contact && (
             <a 
-              href={`https://wa.me/${item.reporter_whatsapp.replace(/[^0-9]/g, '')}`} 
+              href={`https://wa.me/${item.reporter_contact.replace(/[^0-9]/g, '')}`} 
               target="_blank" 
               rel="noopener noreferrer"
               className="text-brand-600 hover:text-brand-700 font-medium hover:underline"
