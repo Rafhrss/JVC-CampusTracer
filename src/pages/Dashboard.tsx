@@ -70,28 +70,40 @@ export default function Dashboard() {
       // 1. Generate Embedding from query
       const queryEmbedding = await generateEmbedding(query);
       
-      // 2. Semantic Search via Supabase RPC
-      // Assuming match_items returns { id, similarity, ...item_columns }
-      const { data: dbMatches, error } = await supabase.rpc('match_items', {
+      // Karena beberapa versi RPC di Supabase gagal menangani filter_status: null, 
+      // kita memanggilnya 2 kali (untuk LOST dan FOUND) lalu menggabungkannya.
+      const { data: lostMatches, error: lostError } = await supabase.rpc('match_items', {
         query_embedding: queryEmbedding,
-        match_threshold: 0.3, // Adjust based on needs
+        match_threshold: -1.0,
         match_count: 5,
-        filter_status: null // Search all for now
+        filter_status: 'LOST'
       });
 
-      if (error) throw error;
+      const { data: foundMatches, error: foundError } = await supabase.rpc('match_items', {
+        query_embedding: queryEmbedding,
+        match_threshold: -1.0,
+        match_count: 5,
+        filter_status: 'FOUND'
+      });
 
-      if (!dbMatches || dbMatches.length === 0) {
+      if (lostError && foundError) throw lostError || foundError;
+
+      const combinedMatches = [...(lostMatches || []), ...(foundMatches || [])]
+        .sort((a, b) => b.similarity - a.similarity)
+        .slice(0, 5);
+
+      if (!combinedMatches || combinedMatches.length === 0) {
         setSearchResults([]);
         setIsSearching(false);
         return;
       }
 
       // 3. AI Justification & Percentage via Gemini Flash
-      const aiAnalysis = await analyzeMatch(query, dbMatches.slice(0, 3)); // Only analyze top 3 to save tokens/time
+      // Pass all combinedMatches to get analysis for everything
+      const aiAnalysis = await analyzeMatch(query, combinedMatches); 
       
-      // Combine results
-      const finalResults = dbMatches.map((dbItem: any) => {
+      // Combine results and filter out very low matches
+      const finalResults = combinedMatches.map((dbItem: any) => {
         const analysis = aiAnalysis.find(a => a.id === dbItem.id);
         return {
           id: dbItem.id,
@@ -100,7 +112,7 @@ export default function Dashboard() {
           justification: analysis?.justification,
           item: dbItem as Item
         };
-      });
+      }).filter((result) => result.match_percentage >= 40);
 
       // Sort by match_percentage descending
       finalResults.sort((a: AiMatchResult, b: AiMatchResult) => (b.match_percentage || 0) - (a.match_percentage || 0));

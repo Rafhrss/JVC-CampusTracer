@@ -18,7 +18,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 
 export async function analyzeMatch(query: string, items: any[]): Promise<any[]> {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ model: 'gemini-3.5-flash' });
     
     const prompt = `
       Anda adalah asisten AI untuk CampusTracer (Lost & Found).
