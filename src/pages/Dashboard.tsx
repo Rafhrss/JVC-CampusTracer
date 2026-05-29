@@ -46,7 +46,7 @@ export default function Dashboard() {
         .from('items')
         .select('*')
         .order('created_at', { ascending: false })
-        .limit(21);
+        .limit(6);
 
       if (error) throw error;
       
@@ -132,23 +132,23 @@ export default function Dashboard() {
       {/* Stats Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <StatCard 
-          title="Sedang Dicari" 
+          title="Barang Hilang Aktif" 
           value={stats.lostActive} 
           icon={<PackageSearch className="w-6 h-6" />} 
-          trend="Bantu temukan" 
+          trend="Perlu Bantuan" 
         />
         <StatCard 
-          title="Mencari Pemilik" 
+          title="Barang Ditemukan" 
           value={stats.foundActive} 
           icon={<ArchiveRestore className="w-6 h-6" />} 
-          trend="Menunggu diambil" 
+          trend="Menunggu Diambil" 
           trendUp={true}
         />
         <StatCard 
-          title="Berhasil Kembali" 
+          title="Kasus Selesai" 
           value={stats.resolved} 
           icon={<CheckCircle className="w-6 h-6" />} 
-          trend="Bukti web ini bermanfaat!" 
+          trend="Bulan Ini" 
           trendUp={true}
         />
       </div>

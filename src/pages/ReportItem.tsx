@@ -7,7 +7,6 @@ import { Package, MapPin, Calendar, FileText, User, Phone, Loader2 } from 'lucid
 export default function ReportItem() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [successData, setSuccessData] = useState<{ pin: string } | null>(null);
   const [formData, setFormData] = useState({
     status: 'LOST',
     title: '',
@@ -35,11 +34,8 @@ export default function ReportItem() {
       const textToEmbed = `${formData.title}. ${formData.raw_description}. Kategori: ${formData.category}. Lokasi: ${formData.last_location}`;
       const embedding = await generateEmbedding(textToEmbed);
 
-      // Generate 4-digit numeric PIN
-      const generatedPin = Math.floor(1000 + Math.random() * 9000).toString();
-
       // 2. Insert into Supabase
-      const { data, error } = await supabase.from('items').insert([
+      const { error } = await supabase.from('items').insert([
         {
           status: formData.status,
           title: formData.title,
@@ -50,21 +46,14 @@ export default function ReportItem() {
           description_embedding: embedding,
           reporter_name: formData.reporter_name,
           reporter_contact: formData.reporter_contact,
-          is_resolved: false,
-          secret_pin: generatedPin
+          is_resolved: false
         }
-      ]).select('id').single();
+      ]);
 
       if (error) throw error;
 
-      // 3. Save to LocalStorage
-      if (data && data.id) {
-        const existingPins = JSON.parse(localStorage.getItem('campustracer_pins') || '{}');
-        existingPins[data.id] = generatedPin;
-        localStorage.setItem('campustracer_pins', JSON.stringify(existingPins));
-      }
-
-      setSuccessData({ pin: generatedPin });
+      alert('Laporan berhasil disimpan!');
+      navigate('/');
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
@@ -73,42 +62,6 @@ export default function ReportItem() {
       setIsSubmitting(false);
     }
   };
-
-  if (successData) {
-    return (
-      <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
-        <div className="bg-white rounded-2xl shadow-sm border border-brand-100 p-8 sm:p-12">
-          <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Package className="w-8 h-8" />
-          </div>
-          <h2 className="text-2xl font-bold text-slate-900 mb-2">Laporan Berhasil Disimpan!</h2>
-          <p className="text-slate-600 mb-8">
-            Laporan Anda telah masuk ke dalam sistem kami dan dapat dicari menggunakan Semantic AI.
-          </p>
-          
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 mb-8 text-left">
-            <h3 className="font-bold text-amber-900 mb-2 flex items-center gap-2">
-              ⚠️ SIMPAN PIN RAHASIA INI
-            </h3>
-            <p className="text-sm text-amber-800 mb-4">
-              PIN ini digunakan untuk menandai bahwa barang telah ditemukan/dikembalikan (Tandai Selesai). 
-              Sistem telah menyimpannya otomatis di browser ini, namun catatlah jika Anda membukanya di HP lain.
-            </p>
-            <div className="text-center bg-white py-3 rounded-lg border border-amber-200">
-              <span className="text-3xl font-black text-amber-600 tracking-widest">{successData.pin}</span>
-            </div>
-          </div>
-
-          <button
-            onClick={() => navigate('/')}
-            className="w-full py-3 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700 transition-colors shadow-sm shadow-brand-500/30"
-          >
-            Kembali ke Beranda
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
