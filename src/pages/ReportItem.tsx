@@ -2,11 +2,31 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { generateEmbedding } from '../lib/gemini';
-import { Package, MapPin, Calendar, FileText, User, Phone, Loader2 } from 'lucide-react';
+import { Package, MapPin, Calendar, FileText, User, Phone, Loader2, ShieldCheck, Copy, Check } from 'lucide-react';
+
+// Generate a random 4-digit PIN
+function generatePin(): string {
+  return String(Math.floor(1000 + Math.random() * 9000));
+}
+
+// Save PIN to localStorage indexed by item id
+function savePinLocally(itemId: number, pin: string) {
+  const pins: Record<number, string> = JSON.parse(localStorage.getItem('campustracer_pins') || '{}');
+  pins[itemId] = pin;
+  localStorage.setItem('campustracer_pins', JSON.stringify(pins));
+}
+
+interface SuccessData {
+  pin: string;
+  itemId: number;
+  title: string;
+}
 
 export default function ReportItem() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successData, setSuccessData] = useState<SuccessData | null>(null);
+  const [pinCopied, setPinCopied] = useState(false);
   const [formData, setFormData] = useState({
     status: 'LOST',
     title: '',
@@ -25,17 +45,27 @@ export default function ReportItem() {
     }));
   };
 
+  const copyPin = async () => {
+    if (successData) {
+      await navigator.clipboard.writeText(successData.pin);
+      setPinCopied(true);
+      setTimeout(() => setPinCopied(false), 2000);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     try {
-      // 1. Generate Embedding from description + title to give more context
+      const pin = generatePin();
+
+      // 1. Generate Embedding
       const textToEmbed = `${formData.title}. ${formData.raw_description}. Kategori: ${formData.category}. Lokasi: ${formData.last_location}`;
       const embedding = await generateEmbedding(textToEmbed);
 
-      // 2. Insert into Supabase
-      const { error } = await supabase.from('items').insert([
+      // 2. Insert into Supabase with PIN
+      const { data, error } = await supabase.from('items').insert([
         {
           status: formData.status,
           title: formData.title,
@@ -46,14 +76,17 @@ export default function ReportItem() {
           description_embedding: embedding,
           reporter_name: formData.reporter_name,
           reporter_contact: formData.reporter_contact,
-          is_resolved: false
+          is_resolved: false,
+          secret_pin: pin,
         }
-      ]);
+      ]).select('id').single();
 
       if (error) throw error;
 
-      alert('Laporan berhasil disimpan!');
-      navigate('/');
+      // 3. Save PIN locally for auto-detect
+      if (data?.id) savePinLocally(data.id, pin);
+
+      setSuccessData({ pin, itemId: data.id, title: formData.title });
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
@@ -62,6 +95,53 @@ export default function ReportItem() {
       setIsSubmitting(false);
     }
   };
+
+  // ── SUCCESS SCREEN ──
+  if (successData) {
+    return (
+      <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 sm:p-12">
+          <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <ShieldCheck className="w-8 h-8 text-emerald-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Laporan Berhasil Dibuat!</h2>
+          <p className="text-slate-500 mb-8">
+            Laporan "<span className="font-medium text-slate-700">{successData.title}</span>" sudah masuk ke database dan bisa dicari menggunakan AI.
+          </p>
+
+          {/* PIN Box */}
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6 mb-6 text-left">
+            <div className="flex items-center gap-2 mb-3">
+              <ShieldCheck className="w-5 h-5 text-amber-600" />
+              <h3 className="font-bold text-amber-900 text-sm uppercase tracking-wide">⚠️ Simpan PIN Rahasia Ini!</h3>
+            </div>
+            <p className="text-sm text-amber-800 mb-4">
+              PIN ini digunakan untuk <strong>menandai kasus selesai</strong> (barang sudah ketemu/dikembalikan). 
+              Browser ini sudah otomatis menyimpannya, tapi catat jika Anda membuka dari perangkat lain.
+            </p>
+            <div className="flex items-center justify-between bg-white rounded-xl border border-amber-300 px-5 py-3">
+              <span className="text-4xl font-black text-slate-900 tracking-[0.3em]">{successData.pin}</span>
+              <button
+                onClick={copyPin}
+                className="flex items-center gap-1.5 text-sm font-medium text-amber-700 hover:text-amber-900 transition-colors"
+              >
+                {pinCopied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                {pinCopied ? 'Tersalin!' : 'Salin'}
+              </button>
+            </div>
+          </div>
+
+          <button
+            onClick={() => navigate('/')}
+            className="w-full py-3 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition-colors"
+          >
+            Kembali ke Beranda
+          </button>
+        </div>
+      </div>
+    );
+  }
+
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
