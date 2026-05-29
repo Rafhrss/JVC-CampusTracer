@@ -18,7 +18,12 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 
 export async function analyzeMatch(query: string, items: any[]): Promise<any[]> {
   try {
-    const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    const model = genAI.getGenerativeModel({ 
+      model: 'gemini-2.5-flash',
+      generationConfig: {
+        responseMimeType: "application/json"
+      }
+    });
     
     const prompt = `
       Anda adalah asisten AI untuk CampusTracer (Lost & Found).
@@ -34,26 +39,24 @@ export async function analyzeMatch(query: string, items: any[]): Promise<any[]> 
       Kembalikan hasilnya DALAM FORMAT JSON array persis seperti ini:
       [
         {
-          "id": <id_barang>,
-          "match_percentage": <persentase_0_sampai_100>,
-          "justification": "<alasan_singkat>"
+          "id": "ISI_DENGAN_ID_BARANG",
+          "match_percentage": 85,
+          "justification": "Alasan singkat mengapa cocok atau tidak."
         }
       ]
-      Pastikan tidak ada teks lain selain JSON array.
     `;
 
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
     
-    // Clean markdown code blocks if any
-    const jsonStr = responseText.replace(/```json/g, '').replace(/```/g, '').trim();
-    return JSON.parse(jsonStr);
-  } catch (error) {
+    // Parse JSON directly since responseMimeType guarantees JSON
+    return JSON.parse(responseText);
+    } catch (error: any) {
     console.error('Error analyzing match with Gemini Flash:', error);
     return items.map(item => ({
       id: item.id,
       match_percentage: Math.round(item.similarity * 100),
-      justification: "AI tidak dapat menganalisis justifikasi saat ini."
+      justification: "AI Error: " + (error?.message || String(error))
     }));
   }
 }

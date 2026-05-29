@@ -7,6 +7,7 @@ export default function Navbar() {
   const isActive = (path: string) => location.pathname === path;
 
   return (
+    <>
     <nav className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
@@ -36,14 +37,14 @@ export default function Navbar() {
             
             <Link 
               to="/report" 
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors ${
+              className={`hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors ${
                 isActive('/report') 
                   ? 'bg-amber-600 text-white' 
                   : 'bg-amber-500 hover:bg-amber-600 text-white'
               }`}
             >
               <PlusCircle className="h-4 w-4" />
-              <span className="hidden sm:inline">Lapor Baru</span>
+              <span>Lapor Baru</span>
             </Link>
 
             <Link 
@@ -67,5 +68,19 @@ export default function Navbar() {
         </div>
       </div>
     </nav>
+    
+    {/* Mobile Floating Action Button (FAB) for Lapor Baru */}
+    {(location.pathname === '/' || location.pathname === '/search') && (
+      <div className="sm:hidden fixed bottom-6 right-6 z-50">
+        <Link
+          to="/report"
+          className="flex items-center justify-center w-14 h-14 bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all active:scale-95 border-4 border-white"
+          title="Lapor Baru"
+        >
+          <PlusCircle className="h-6 w-6" />
+        </Link>
+      </div>
+    )}
+    </>
   );
 }
