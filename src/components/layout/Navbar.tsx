@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Search, PlusCircle, UserCircle, MapPin } from 'lucide-react';
+import { Search, PlusCircle, UserCircle, MapPin, Trophy } from 'lucide-react';
 
 export default function Navbar() {
   const location = useLocation();
@@ -44,6 +44,18 @@ export default function Navbar() {
             >
               <PlusCircle className="h-4 w-4" />
               <span className="hidden sm:inline">Lapor Baru</span>
+            </Link>
+
+            <Link 
+              to="/heroes" 
+              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                isActive('/heroes') 
+                  ? 'text-amber-600 bg-amber-50' 
+                  : 'text-slate-600 hover:text-amber-600 hover:bg-slate-50'
+              }`}
+            >
+              <Trophy className="h-4 w-4" />
+              <span className="hidden sm:inline">Pahlawan</span>
             </Link>
 
             {/* Guest Mode Indicator */}

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { AiMatchResult } from '../../types';
-import { MapPin, Calendar, CheckCircle2, AlertCircle, X, AlignLeft } from 'lucide-react';
+import { MapPin, Calendar, CheckCircle2, AlertCircle, X, AlignLeft, ShieldCheck, Loader2 } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
 
 interface ItemCardProps {
   matchResult: AiMatchResult;
@@ -8,14 +9,34 @@ interface ItemCardProps {
 
 export default function ItemCard({ matchResult }: ItemCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isResolving, setIsResolving] = useState(false);
+  const [showPinInput, setShowPinInput] = useState(false);
+  const [pinValue, setPinValue] = useState('');
+  const [savedPin, setSavedPin] = useState<string | null>(null);
+
   const { item, match_percentage, justification } = matchResult;
+
+  useEffect(() => {
+    if (isModalOpen && item) {
+      const pins = JSON.parse(localStorage.getItem('campustracer_pins') || '{}');
+      if (pins[item.id]) {
+        setSavedPin(pins[item.id]);
+      }
+    }
+  }, [isModalOpen, item]);
 
   if (!item) return null;
 
-  const isLost = item.status === 'LOST';
-  const statusColor = isLost ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700';
-  const statusIcon = isLost ? <AlertCircle className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />;
-  const statusText = isLost ? 'HILANG' : 'DITEMUKAN';
+  let statusColor = 'bg-slate-100 text-slate-700 border border-slate-300';
+  let statusIcon = <CheckCircle2 className="w-4 h-4" />;
+  let statusText = 'SELESAI';
+
+  if (!item.is_resolved) {
+    const isLost = item.status === 'LOST';
+    statusColor = isLost ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700';
+    statusIcon = isLost ? <AlertCircle className="w-4 h-4" /> : <CheckCircle2 className="w-4 h-4" />;
+    statusText = isLost ? 'HILANG' : 'DITEMUKAN';
+  }
 
   const getMatchColor = (percentage: number) => {
     if (percentage >= 80) return 'bg-brand-500';
@@ -26,6 +47,30 @@ export default function ItemCard({ matchResult }: ItemCardProps) {
   const matchColor = match_percentage !== undefined ? getMatchColor(match_percentage) : 'bg-slate-500';
 
   const formatContact = (contact: string) => contact.replace(/[^0-9]/g, '');
+
+  const handleResolve = async (pinToUse: string) => {
+    setIsResolving(true);
+    try {
+      const { data, error } = await supabase.rpc('resolve_item', {
+        p_item_id: item.id,
+        p_pin: pinToUse
+      });
+
+      if (error) throw error;
+
+      if (data === true) {
+        alert('Status berhasil diubah! Kasus telah selesai.');
+        window.location.reload();
+      } else {
+        alert('PIN yang Anda masukkan salah.');
+      }
+    } catch (error) {
+      console.error('Resolve error:', error);
+      alert('Terjadi kesalahan saat memproses permintaan.');
+    } finally {
+      setIsResolving(false);
+    }
+  };
 
   return (
     <>
@@ -175,6 +220,50 @@ export default function ItemCard({ matchResult }: ItemCardProps) {
                     <div className="bg-brand-50 border border-brand-100 p-4 rounded-xl">
                       <p className="text-brand-900 italic font-medium">"{justification}"</p>
                     </div>
+                  </div>
+                )}
+                
+                {/* Resolve Section */}
+                {!item.is_resolved && (
+                  <div className="pt-6 border-t border-slate-100">
+                    {savedPin ? (
+                      <button
+                        disabled={isResolving}
+                        onClick={() => handleResolve(savedPin)}
+                        className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold transition-colors shadow-sm disabled:opacity-50"
+                      >
+                        {isResolving ? <Loader2 className="w-5 h-5 animate-spin" /> : <ShieldCheck className="w-5 h-5" />}
+                        {item.status === 'LOST' ? 'Alhamdulillah, Barang Saya Sudah Ketemu!' : 'Barang Telah Diserahkan ke Pemiliknya!'}
+                      </button>
+                    ) : showPinInput ? (
+                      <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 flex items-center gap-3">
+                        <input
+                          type="text"
+                          maxLength={4}
+                          placeholder="PIN 4 Digit"
+                          value={pinValue}
+                          onChange={(e) => setPinValue(e.target.value)}
+                          className="flex-grow px-4 py-2 border border-slate-300 rounded-lg focus:ring-emerald-500 focus:border-emerald-500 text-center font-bold tracking-widest"
+                        />
+                        <button
+                          disabled={isResolving || pinValue.length !== 4}
+                          onClick={() => handleResolve(pinValue)}
+                          className="px-6 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-bold transition-colors disabled:opacity-50 flex items-center gap-2"
+                        >
+                          {isResolving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Kirim'}
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => setShowPinInput(true)}
+                        className="w-full py-3 bg-white border-2 border-emerald-500 text-emerald-600 hover:bg-emerald-50 rounded-xl font-bold transition-colors"
+                      >
+                        {item.status === 'LOST' ? 'Tandai Barang Sudah Ketemu (Butuh PIN)' : 'Tandai Sudah Dikembalikan (Butuh PIN)'}
+                      </button>
+                    )}
+                    <p className="text-xs text-center text-slate-500 mt-2">
+                      Hanya pelapor yang dapat menyelesaikan kasus ini.
+                    </p>
                   </div>
                 )}
               </div>
