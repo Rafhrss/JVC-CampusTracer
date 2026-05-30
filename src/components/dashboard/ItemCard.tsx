@@ -5,6 +5,7 @@ import {
   ShieldCheck, Loader2, Pencil, Trash2, Save, RotateCcw
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import { useAuth } from '../../contexts/AuthContext';
 
 interface ItemCardProps {
   matchResult: AiMatchResult;
@@ -17,9 +18,7 @@ export default function ItemCard({ matchResult, onUpdated }: ItemCardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalView, setModalView] = useState<ModalView>('detail');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showPinInput, setShowPinInput] = useState(false);
-  const [pinValue, setPinValue] = useState('');
-  const [savedPin, setSavedPin] = useState<string | null>(null);
+  const { user } = useAuth();
 
   // Edit form state (mirrors item fields)
   const [editData, setEditData] = useState({
@@ -35,8 +34,6 @@ export default function ItemCard({ matchResult, onUpdated }: ItemCardProps) {
 
   useEffect(() => {
     if (isModalOpen && item) {
-      const pins = JSON.parse(localStorage.getItem('campustracer_pins') || '{}');
-      setSavedPin(pins[item.id] ?? null);
       // Pre-populate edit form
       setEditData({
         title: item.title,
@@ -53,7 +50,7 @@ export default function ItemCard({ matchResult, onUpdated }: ItemCardProps) {
 
   const isResolved = item.is_resolved;
   const isLost = item.status === 'LOST';
-  const isOwner = !!savedPin;
+  const isOwner = user && item.user_id === user.id;
 
   let statusColor = 'bg-emerald-100 text-emerald-700';
   let statusIcon = <CheckCircle2 className="w-4 h-4" />;
@@ -76,22 +73,16 @@ export default function ItemCard({ matchResult, onUpdated }: ItemCardProps) {
   const closeModal = () => {
     setIsModalOpen(false);
     setModalView('detail');
-    setPinValue('');
-    setShowPinInput(false);
   };
 
   // ── ACTIONS ──────────────────────────────────────────────────
-  const handleResolve = async (pin: string) => {
+  const handleResolve = async () => {
     setIsProcessing(true);
     try {
-      const { data, error } = await supabase.rpc('resolve_item', { p_item_id: item.id, p_pin: pin });
+      const { error } = await supabase.from('items').update({ is_resolved: true }).eq('id', item.id);
       if (error) throw error;
-      if (data === true) {
-        closeModal();
-        onUpdated ? onUpdated() : window.location.reload();
-      } else {
-        alert('❌ PIN salah. Coba lagi.');
-      }
+      closeModal();
+      onUpdated ? onUpdated() : window.location.reload();
     } catch { alert('Terjadi kesalahan saat memproses.'); }
     finally { setIsProcessing(false); }
   };
@@ -407,65 +398,33 @@ export default function ItemCard({ matchResult, onUpdated }: ItemCardProps) {
                   )}
 
                   {/* Resolve */}
-                  {!isResolved && (
+                  {!isResolved && isOwner && (
                     <div className="pt-3 border-t border-slate-100">
-                      {isOwner ? (
-                        <div className="space-y-3">
-                          <button
-                            disabled={isProcessing}
-                            onClick={() => handleResolve(savedPin!)}
-                            className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-semibold text-sm transition-colors disabled:opacity-60"
-                          >
-                            {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
-                            {isLost ? 'Alhamdulillah, Barang Sudah Ketemu!' : 'Barang Sudah Diserahkan ke Pemilik!'}
-                          </button>
-                          
-                          <div className="flex gap-3">
-                            <button
-                              onClick={() => setModalView('edit')}
-                              className="flex-1 py-2.5 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 border border-brand-200"
-                            >
-                              <Pencil className="w-4 h-4" /> Edit Laporan
-                            </button>
-                            <button
-                              onClick={() => setModalView('delete')}
-                              className="flex-1 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 border border-rose-200"
-                            >
-                              <Trash2 className="w-4 h-4" /> Hapus
-                            </button>
-                          </div>
-                        </div>
-                      ) : showPinInput ? (
-                        <div className="space-y-2">
-                          <div className="flex gap-2">
-                            <input
-                              type="text"
-                              inputMode="numeric"
-                              maxLength={4}
-                              placeholder="PIN"
-                              value={pinValue}
-                              onChange={e => setPinValue(e.target.value.replace(/\D/g, ''))}
-                              className="flex-1 min-w-0 px-4 py-2.5 border border-slate-300 rounded-xl text-center font-black text-xl tracking-widest focus:ring-2 focus:ring-brand-500 focus:border-transparent outline-none"
-                            />
-                            <button
-                              disabled={isProcessing || pinValue.length !== 4}
-                              onClick={() => handleResolve(pinValue)}
-                              className="shrink-0 px-4 py-2.5 bg-brand-600 text-white rounded-xl font-semibold text-sm hover:bg-brand-700 transition-colors disabled:opacity-50 flex items-center gap-1.5"
-                            >
-                              {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Konfirmasi'}
-                            </button>
-                          </div>
-                          <p className="text-xs text-slate-400 text-center">Masukkan PIN 4 digit yang Anda terima saat laporan dibuat.</p>
-                        </div>
-                      ) : (
+                      <div className="space-y-3">
                         <button
-                          onClick={() => setShowPinInput(true)}
-                          className="w-full py-2.5 bg-white border-2 border-dashed border-slate-200 text-slate-500 rounded-xl font-medium text-sm hover:border-brand-400 hover:text-brand-600 transition-colors flex items-center justify-center gap-2"
+                          disabled={isProcessing}
+                          onClick={handleResolve}
+                          className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-semibold text-sm transition-colors disabled:opacity-60"
                         >
-                          <ShieldCheck className="w-4 h-4" />
-                          Tandai Kasus Selesai (Butuh PIN)
+                          {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
+                          {isLost ? 'Alhamdulillah, Barang Sudah Ketemu!' : 'Barang Sudah Diserahkan ke Pemilik!'}
                         </button>
-                      )}
+                        
+                        <div className="flex gap-3">
+                          <button
+                            onClick={() => setModalView('edit')}
+                            className="flex-1 py-2.5 bg-brand-50 hover:bg-brand-100 text-brand-700 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 border border-brand-200"
+                          >
+                            <Pencil className="w-4 h-4" /> Edit Laporan
+                          </button>
+                          <button
+                            onClick={() => setModalView('delete')}
+                            className="flex-1 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 border border-rose-200"
+                          >
+                            <Trash2 className="w-4 h-4" /> Hapus
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </>

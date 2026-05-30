@@ -17,6 +17,7 @@ export interface Item {
   // Custom fields for guest mode
   reporter_name?: string;
   reporter_contact?: string;
+  user_id?: string;
 }
 
 export interface AiMatchResult {

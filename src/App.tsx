@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
 import Navbar from './components/layout/Navbar';
 import Dashboard from './pages/Dashboard';
 import ReportItem from './pages/ReportItem';
@@ -8,7 +9,8 @@ import Particles from './components/ui/Particles';
 
 function App() {
   return (
-    <Router>
+    <AuthProvider>
+      <Router>
       {/* Global Dark Particles Layer for all pages */}
       <div className="fixed top-0 left-0 w-screen h-screen pointer-events-none z-0">
         <Particles
@@ -36,6 +38,7 @@ function App() {
         </main>
       </div>
     </Router>
+    </AuthProvider>
   );
 }
 
