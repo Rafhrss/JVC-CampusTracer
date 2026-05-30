@@ -2,13 +2,18 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { generateEmbedding } from '../lib/gemini';
-import { Package, MapPin, Calendar, FileText, User, Phone, Loader2, Lock } from 'lucide-react';
+import { Package, MapPin, Calendar, FileText, User, Phone, Loader2, Lock, Camera, X, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function ReportItem() {
   const navigate = useNavigate();
   const { user, signInWithGoogle } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  
+  // Image Upload State
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     status: 'LOST',
@@ -37,6 +42,27 @@ export default function ReportItem() {
     }));
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        alert('Ukuran gambar maksimal 5MB.');
+        return;
+      }
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
@@ -47,7 +73,29 @@ export default function ReportItem() {
       const textToEmbed = `${formData.title}. ${formData.raw_description}. Kategori: ${formData.category}. Lokasi: ${formData.last_location}`;
       const embedding = await generateEmbedding(textToEmbed);
 
-      // 2. Insert into Supabase
+      // 2. Upload Image if exists
+      let imageUrl = null;
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const fileName = `${user.id}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from('item-images')
+          .upload(fileName, imageFile);
+
+        if (uploadError) {
+          console.error('Upload Error:', uploadError);
+          throw new Error('Gagal mengunggah gambar. Silakan coba lagi.');
+        }
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('item-images')
+          .getPublicUrl(fileName);
+
+        imageUrl = publicUrl;
+      }
+
+      // 3. Insert into Supabase
       const { error } = await supabase.from('items').insert([
         {
           status: formData.status,
@@ -60,14 +108,14 @@ export default function ReportItem() {
           reporter_name: formData.reporter_name,
           reporter_contact: formData.reporter_contact,
           is_resolved: false,
-          user_id: user.id
+          user_id: user.id,
+          image_url: imageUrl
         }
       ]);
 
       if (error) throw error;
 
-      alert('Laporan berhasil disimpan!');
-      navigate('/');
+      setShowSuccess(true);
       
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : JSON.stringify(error);
@@ -100,6 +148,27 @@ export default function ReportItem() {
     );
   }
 
+  if (showSuccess) {
+    return (
+      <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-8 sm:p-12">
+          <div className="w-16 h-16 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
+            <ShieldCheck className="w-8 h-8 text-emerald-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Laporan Berhasil Dibuat!</h2>
+          <p className="text-slate-500 mb-8">
+            Laporan <span className="font-medium text-slate-700">"{formData.title}"</span> Anda telah berhasil disimpan dan diteruskan ke sistem AI pencocokan kami.
+          </p>
+          <button
+            onClick={() => navigate('/')}
+            className="w-full py-3 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition-colors"
+          >
+            Kembali ke Beranda
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -241,6 +310,44 @@ export default function ReportItem() {
                 </div>
               </div>
             </div>
+          </div>
+
+          <div className="space-y-6">
+            <h3 className="text-lg font-semibold text-slate-900 border-b border-slate-100 pb-2">Foto Barang (Opsional)</h3>
+            
+            {imagePreview ? (
+              <div className="relative inline-block">
+                <img 
+                  src={imagePreview} 
+                  alt="Preview" 
+                  className="h-48 w-48 object-cover rounded-xl border-2 border-slate-200 shadow-sm"
+                />
+                <button
+                  type="button"
+                  onClick={removeImage}
+                  className="absolute -top-3 -right-3 p-1.5 bg-rose-500 text-white rounded-full hover:bg-rose-600 shadow-md transition-colors"
+                  title="Hapus Foto"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-slate-300 border-dashed rounded-xl cursor-pointer bg-slate-50 hover:bg-slate-100 transition-colors">
+                <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                  <Camera className="w-8 h-8 text-slate-400 mb-2" />
+                  <p className="text-sm text-slate-500">
+                    <span className="font-semibold text-brand-600">Klik untuk unggah</span> foto barang
+                  </p>
+                  <p className="text-xs text-slate-400 mt-1">PNG, JPG (MAX. 5MB)</p>
+                </div>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  className="hidden" 
+                  onChange={handleImageChange}
+                />
+              </label>
+            )}
           </div>
 
           <div className="pt-4 border-t border-slate-100 flex justify-end">

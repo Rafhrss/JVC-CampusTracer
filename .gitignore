@@ -26,3 +26,5 @@ dist-ssr
 # Env & Test files
 .env
 test-env.mjs
+
+supabase_migration_

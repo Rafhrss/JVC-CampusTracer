@@ -14,6 +14,8 @@ export interface Item {
   last_location: string;
   date_event: string;
   is_resolved: boolean;
+  image_url?: string | null;
+
   // Custom fields for guest mode
   reporter_name?: string;
   reporter_contact?: string;

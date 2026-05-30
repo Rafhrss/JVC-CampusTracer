@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import type { AiMatchResult } from '../../types';
 import {
   MapPin, Calendar, CheckCircle2, AlertCircle, X, AlignLeft,
-  ShieldCheck, Loader2, Pencil, Trash2, Save, RotateCcw
+  ShieldCheck, Loader2, Pencil, Trash2, Save, RotateCcw, Camera
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
@@ -148,6 +148,11 @@ export default function ItemCard({ matchResult, onUpdated }: ItemCardProps) {
             <span className="text-xs font-medium text-slate-400 uppercase tracking-wider px-2 py-1 bg-slate-50 rounded-full border border-slate-100">
               {item.category}
             </span>
+            {item.image_url && (
+              <span className="text-xs text-brand-600 bg-brand-50 rounded-full px-2 py-1 flex items-center gap-1 font-semibold border border-brand-100" title="Dilengkapi Foto">
+                <Camera className="w-3 h-3" /> Foto
+              </span>
+            )}
           </div>
 
           <h3 className="text-base font-bold text-slate-900 mb-1.5 leading-tight group-hover:text-brand-600 transition-colors line-clamp-2">
@@ -361,6 +366,16 @@ export default function ItemCard({ matchResult, onUpdated }: ItemCardProps) {
                   )}
 
                   <h2 className="text-xl font-bold text-slate-900 leading-snug">{item.title}</h2>
+
+                  {item.image_url && (
+                    <div className="my-4 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
+                      <img 
+                        src={item.image_url} 
+                        alt={item.title} 
+                        className="w-full h-auto max-h-64 object-contain" 
+                      />
+                    </div>
+                  )}
 
                   <div>
                     <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
