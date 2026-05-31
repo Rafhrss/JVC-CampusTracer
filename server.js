@@ -36,6 +36,6 @@ app.use((req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log(`Production server running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Production server running on http://0.0.0.0:${PORT}`);
 });
