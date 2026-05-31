@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, PlusCircle, MapPin, Trophy } from 'lucide-react';
+import { Search, PlusCircle, Trophy } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { CampusTracerIcon } from './Logo';
 

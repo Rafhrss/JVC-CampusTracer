@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { MapPin, Heart } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { CampusTracerIcon } from './Logo';
 
 export default function Footer() {

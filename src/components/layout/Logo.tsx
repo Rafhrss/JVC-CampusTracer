@@ -1,4 +1,4 @@
-import React from 'react';
+
 
 export const CampusTracerIcon = ({ className = "w-6 h-6 text-white" }: { className?: string }) => {
   return (
