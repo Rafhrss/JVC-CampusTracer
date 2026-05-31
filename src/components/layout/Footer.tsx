@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { MapPin, Heart } from 'lucide-react';
+import { CampusTracerIcon } from './Logo';
 
 export default function Footer() {
   return (
@@ -8,7 +9,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2">
             <div className="bg-brand-500 p-1.5 rounded-lg">
-              <MapPin className="h-5 w-5 text-white" />
+              <CampusTracerIcon className="h-5 w-5 text-white" />
             </div>
             <span className="font-bold text-lg text-slate-900 tracking-tight">
               Campus<span className="text-brand-600">Tracer</span>

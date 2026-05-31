@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Search, PlusCircle, UserCircle, MapPin, Trophy } from 'lucide-react';
+import { Search, PlusCircle, MapPin, Trophy } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { CampusTracerIcon } from './Logo';
 
 export default function Navbar() {
   const location = useLocation();
@@ -19,7 +20,7 @@ export default function Navbar() {
           <div className="flex items-center">
             <Link to="/" className="flex items-center gap-2">
               <div className="bg-brand-500 p-2 rounded-lg">
-                <MapPin className="h-6 w-6 text-white" />
+                <CampusTracerIcon className="h-6 w-6 text-white" />
               </div>
               <span className="font-bold text-xl text-slate-900 tracking-tight">
                 Campus<span className="text-brand-600">Tracer</span>

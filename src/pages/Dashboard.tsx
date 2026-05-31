@@ -104,7 +104,7 @@ export default function Dashboard() {
               <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg font-bold shrink-0">1</div>
               <div>
                 <h3 className="font-semibold text-slate-800 text-sm uppercase tracking-wider mb-1.5">Laporkan Kejadian</h3>
-                <p className="text-slate-500 text-sm leading-relaxed">Laporkan kehilangan barang atau penemuan barang melalui tombol pelaporan di pojok kanan atas.</p>
+                <p className="text-slate-500 text-sm leading-relaxed">Laporkan kehilangan barang atau penemuan barang melalui tombol Lapor Baru bertanda + "Tambah".</p>
               </div>
             </div>
             <div className="flex gap-4">
