@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AiSearchBar from '../components/dashboard/AiSearchBar';
 import StatCard from '../components/dashboard/StatCard';
 import ItemCard from '../components/dashboard/ItemCard';
+import Footer from '../components/layout/Footer';
 import { supabase } from '../lib/supabase';
 import type { AiMatchResult, Item } from '../types';
 import { ArchiveRestore, PackageSearch, CheckCircle, Sparkles } from 'lucide-react';
@@ -93,7 +94,7 @@ export default function Dashboard() {
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
         {/* How It Works */}
-        <div className="mb-12 bg-white rounded-3xl border border-slate-200 shadow-md p-8 sm:p-10">
+        <div className="relative z-10 mb-12 bg-white rounded-3xl border border-slate-200 shadow-md p-8 sm:p-10">
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-slate-900 mb-2">Bagaimana CampusTracer Bekerja?</h2>
             <p className="text-slate-500">Platform Lost &amp; Found modern untuk mempermudah pencarian barang hilang di area universitas.</p>
@@ -124,14 +125,20 @@ export default function Dashboard() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-12">
-          <StatCard title="Barang Hilang Aktif" value={stats.lostActive} icon={<PackageSearch className="w-5 h-5" />} trend="Perlu Bantuan" />
-          <StatCard title="Barang Ditemukan" value={stats.foundActive} icon={<ArchiveRestore className="w-5 h-5" />} trend="Menunggu Diambil" trendUp={true} />
-          <StatCard title="Kasus Selesai" value={stats.resolved} icon={<CheckCircle className="w-5 h-5" />} trend="Berhasil Kembali" trendUp={true} />
+        <div className="relative mb-12 z-0">
+          {/* subtle background glow */}
+          <div className="absolute -top-12 left-0 w-[28rem] h-[28rem] bg-rose-200/80 rounded-full blur-[80px] pointer-events-none -z-10" />
+          <div className="absolute -bottom-16 right-0 w-[28rem] h-[28rem] bg-emerald-200/80 rounded-full blur-[80px] pointer-events-none -z-10" />
+          
+          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-5">
+            <StatCard title="Barang Hilang Aktif" value={stats.lostActive} icon={<PackageSearch className="w-5 h-5" />} trend="Perlu Bantuan" variant="danger" />
+            <StatCard title="Barang Ditemukan" value={stats.foundActive} icon={<ArchiveRestore className="w-5 h-5" />} trend="Menunggu Diambil" variant="success" />
+            <StatCard title="Kasus Selesai" value={stats.resolved} icon={<CheckCircle className="w-5 h-5" />} trend="Berhasil Kembali" variant="success" />
+          </div>
         </div>
 
         {/* Recent Items */}
-        <div>
+        <div className="relative z-10">
           <div className="flex items-center gap-3 mb-6">
             <h2 className="text-2xl font-bold text-slate-900">Laporan Terbaru</h2>
             <div className="h-px flex-1 bg-slate-100" />
@@ -152,6 +159,7 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

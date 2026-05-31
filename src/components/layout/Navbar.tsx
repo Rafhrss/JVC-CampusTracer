@@ -10,7 +10,7 @@ export default function Navbar() {
 
   return (
     <>
-    <nav className="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-50">
+    <nav className="bg-slate-300 shadow-sm border-b border-slate-200 sticky top-0 z-50 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -27,10 +27,10 @@ export default function Navbar() {
           <div className="flex items-center space-x-1 md:space-x-2">
             <Link 
               to="/" 
-              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${
                 isActive('/') 
-                  ? 'text-brand-600 bg-brand-50' 
-                  : 'text-slate-600 hover:text-brand-600 hover:bg-slate-50'
+                  ? 'text-white bg-gradient-to-r from-orange-500 to-amber-500 shadow-md' 
+                  : 'text-slate-600 hover:text-white hover:bg-gradient-to-r hover:from-orange-400 hover:to-amber-400 hover:shadow-md hover:-translate-y-0.5'
               }`}
             >
               <Search className="h-4 w-4" />
@@ -39,10 +39,10 @@ export default function Navbar() {
             
             <Link 
               to="/report" 
-              className={`hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-colors ${
+              className={`hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${
                 isActive('/report') 
-                  ? 'bg-amber-600 text-white' 
-                  : 'bg-amber-500 hover:bg-amber-600 text-white'
+                  ? 'text-white bg-gradient-to-r from-orange-500 to-amber-500 shadow-md' 
+                  : 'text-slate-600 hover:text-white hover:bg-gradient-to-r hover:from-orange-400 hover:to-amber-400 hover:shadow-md hover:-translate-y-0.5'
               }`}
             >
               <PlusCircle className="h-4 w-4" />
@@ -51,10 +51,10 @@ export default function Navbar() {
 
             <Link 
               to="/heroes" 
-              className={`flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all duration-300 ${
                 isActive('/heroes') 
-                  ? 'text-amber-600 bg-amber-50' 
-                  : 'text-slate-600 hover:text-amber-600 hover:bg-amber-50'
+                  ? 'text-white bg-gradient-to-r from-orange-500 to-amber-500 shadow-md' 
+                  : 'text-slate-600 hover:text-white hover:bg-gradient-to-r hover:from-orange-400 hover:to-amber-400 hover:shadow-md hover:-translate-y-0.5'
               }`}
             >
               <Trophy className="h-4 w-4" />
@@ -63,29 +63,29 @@ export default function Navbar() {
 
             {/* Auth Section */}
             {user ? (
-              <div className="flex items-center gap-3 pl-2 sm:pl-3 border-l border-slate-200">
-                <div className="flex items-center gap-2" title={user.email}>
+              <div className="flex items-center gap-3 pl-2 sm:pl-3 ml-2 border-l border-slate-300">
+                <div className="flex items-center gap-2 bg-slate-300 px-3 py-1.5 rounded-full border border-slate-200 shadow-sm" title={user.email}>
                   {user.user_metadata?.avatar_url ? (
-                    <img src={user.user_metadata.avatar_url} alt="Avatar" className="w-8 h-8 rounded-full border border-slate-200" />
+                    <img src={user.user_metadata.avatar_url} alt="Avatar" className="w-7 h-7 rounded-full" />
                   ) : (
-                    <UserCircle className="h-7 w-7 text-brand-600" />
+                    <UserCircle className="h-7 w-7 text-slate-400" />
                   )}
-                  <span className="hidden sm:inline text-sm font-semibold text-slate-700 max-w-[100px] truncate">
+                  <span className="hidden sm:inline text-sm font-bold text-slate-700 max-w-[100px] truncate">
                     {user.user_metadata?.full_name?.split(' ')[0] || 'User'}
                   </span>
                 </div>
                 <button 
                   onClick={signOut}
-                  className="text-xs text-rose-600 hover:text-white hover:bg-rose-500 font-bold px-2.5 py-1.5 bg-rose-50 rounded-md transition-colors"
+                  className="px-4 py-2 rounded-lg text-sm font-bold text-slate-600 transition-all duration-300 hover:text-white hover:bg-gradient-to-r hover:from-orange-400 hover:to-amber-400 hover:shadow-md hover:-translate-y-0.5"
                 >
                   Logout
                 </button>
               </div>
             ) : (
-              <div className="pl-2 sm:pl-3 border-l border-slate-200">
+              <div className="pl-2 sm:pl-3 ml-2 border-l border-slate-300">
                 <button 
                   onClick={signInWithGoogle}
-                  className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-sm font-bold text-slate-700 transition-colors shadow-sm"
+                  className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold text-slate-600 bg-white border border-slate-200 transition-all duration-300 hover:border-transparent hover:text-white hover:bg-gradient-to-r hover:from-orange-400 hover:to-amber-400 hover:shadow-md hover:-translate-y-0.5"
                 >
                   <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-4 h-4 shrink-0" alt="Google" />
                   <span className="hidden sm:inline">Login</span>
@@ -99,13 +99,13 @@ export default function Navbar() {
     
     {/* Mobile Floating Action Button (FAB) for Lapor Baru */}
     {(location.pathname === '/' || location.pathname === '/search') && (
-      <div className="sm:hidden fixed bottom-6 right-6 z-50">
+      <div className="sm:hidden fixed bottom-8 right-8 z-50">
         <Link
           to="/report"
-          className="flex items-center justify-center w-14 h-14 bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all active:scale-95 border-4 border-white"
+          className="flex items-center justify-center w-18 h-18 bg-amber-500 hover:bg-amber-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all active:scale-95 border-4 border-white"
           title="Lapor Baru"
         >
-          <PlusCircle className="h-6 w-6" />
+          <PlusCircle className="h-12 w-12" />
         </Link>
       </div>
     )}

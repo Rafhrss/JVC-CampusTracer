@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Trophy, Medal, Award, User, Loader2 } from 'lucide-react';
+import Footer from '../components/layout/Footer';
 
 interface HeroStats {
   name: string;
@@ -72,7 +73,8 @@ export default function Heroes() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <>
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 min-h-screen">
       <div className="text-center mb-12">
         <div className="inline-flex items-center justify-center p-4 bg-amber-100 rounded-full mb-4 shadow-inner">
           <Trophy className="w-12 h-12 text-amber-600" />
@@ -146,5 +148,7 @@ export default function Heroes() {
         </div>
       )}
     </div>
+    <Footer />
+    </>
   );
 }
