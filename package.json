@@ -8,11 +8,12 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "serve -s dist -l tcp://0.0.0.0:8080"
+    "start": "node server.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "@supabase/supabase-js": "^2.106.2",
+    "express": "^5.2.1",
     "lucide-react": "^1.16.0",
     "ogl": "^1.0.11",
     "react": "^19.2.6",
