@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 8080;
 app.use(express.static(path.join(__dirname, 'dist'), { index: false }));
 
 // Handle all requests by injecting Runtime Environment Variables into index.html
-app.get('*', (req, res) => {
+app.use((req, res) => {
   const indexPath = path.join(__dirname, 'dist', 'index.html');
   
   fs.readFile(indexPath, 'utf8', (err, htmlData) => {
