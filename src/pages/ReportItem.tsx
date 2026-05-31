@@ -172,7 +172,7 @@ export default function ReportItem() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
+      <div className="mb-8 text-center sm:text-left">
         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Laporkan Barang</h1>
         <p className="mt-2 text-slate-600">Bantu komunitas kampus dengan melaporkan barang yang Anda temukan atau hilangkan.</p>
       </div>

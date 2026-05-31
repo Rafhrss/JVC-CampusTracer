@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Search, PlusCircle, UserCircle, MapPin, Trophy } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -5,6 +6,8 @@ import { useAuth } from '../../contexts/AuthContext';
 export default function Navbar() {
   const location = useLocation();
   const { user, signInWithGoogle, signOut } = useAuth();
+  const [imgError, setImgError] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -65,18 +68,27 @@ export default function Navbar() {
             {user ? (
               <div className="flex items-center gap-3 pl-2 sm:pl-3 ml-2 border-l border-slate-300">
                 <div className="flex items-center gap-2 bg-slate-300 px-3 py-1.5 rounded-full border border-slate-200 shadow-sm" title={user.email}>
-                  {user.user_metadata?.avatar_url ? (
-                    <img src={user.user_metadata.avatar_url} alt="Avatar" className="w-7 h-7 rounded-full" />
+                  {user.user_metadata?.avatar_url && !imgError ? (
+                    <img 
+                      src={user.user_metadata.avatar_url} 
+                      alt="Avatar" 
+                      className="w-7 h-7 rounded-full object-cover" 
+                      onError={() => setImgError(true)}
+                    />
                   ) : (
-                    <UserCircle className="h-7 w-7 text-slate-400" />
+                    <div className="w-7 h-7 rounded-full bg-brand-100 flex items-center justify-center shrink-0">
+                      <span className="text-brand-700 text-xs font-extrabold">
+                        {(user.user_metadata?.full_name || user.email || 'U').charAt(0).toUpperCase()}
+                      </span>
+                    </div>
                   )}
                   <span className="hidden sm:inline text-sm font-bold text-slate-700 max-w-[100px] truncate">
                     {user.user_metadata?.full_name?.split(' ')[0] || 'User'}
                   </span>
                 </div>
                 <button 
-                  onClick={signOut}
-                  className="px-4 py-2 rounded-lg text-sm font-bold text-slate-600 transition-all duration-300 hover:text-white hover:bg-gradient-to-r hover:from-orange-400 hover:to-amber-400 hover:shadow-md hover:-translate-y-0.5"
+                  onClick={() => setIsLogoutModalOpen(true)}
+                  className="px-4 py-2 rounded-lg text-sm font-bold text-rose-600 bg-rose-50 border border-rose-100 transition-all duration-300 hover:bg-rose-600 hover:text-white hover:border-transparent hover:shadow-md hover:-translate-y-0.5"
                 >
                   Logout
                 </button>
@@ -107,6 +119,32 @@ export default function Navbar() {
         >
           <PlusCircle className="h-12 w-12" />
         </Link>
+      </div>
+    )}
+    {/* Custom Logout Modal */}
+    {isLogoutModalOpen && (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-6 max-w-sm w-full animate-in fade-in zoom-in duration-200">
+          <h3 className="text-xl font-bold text-slate-900 mb-2">Keluar Akun</h3>
+          <p className="text-slate-500 text-sm mb-6">Apakah Anda yakin ingin keluar? Anda harus login kembali untuk melaporkan atau mengklaim barang.</p>
+          <div className="flex gap-3 justify-end">
+            <button 
+              onClick={() => setIsLogoutModalOpen(false)}
+              className="px-4 py-2 rounded-lg text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+            >
+              Batal
+            </button>
+            <button 
+              onClick={() => {
+                setIsLogoutModalOpen(false);
+                signOut();
+              }}
+              className="px-4 py-2 rounded-lg text-sm font-bold text-white bg-rose-600 hover:bg-rose-700 shadow-sm transition-colors"
+            >
+              Ya, Keluar
+            </button>
+          </div>
+        </div>
       </div>
     )}
     </>

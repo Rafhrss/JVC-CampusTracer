@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import type { AiMatchResult } from '../../types';
 import {
   MapPin, Calendar, CheckCircle2, AlertCircle, X, AlignLeft,
@@ -158,7 +159,7 @@ export default function ItemCard({ matchResult, onUpdated }: ItemCardProps) {
           <h3 className="text-base font-bold text-slate-900 mb-1.5 leading-tight group-hover:text-brand-600 transition-colors line-clamp-2">
             {item.title}
           </h3>
-          <p className="text-sm text-slate-500 mb-4 line-clamp-2">{item.raw_description}</p>
+          <p className="text-sm text-slate-500 mb-4 line-clamp-4">{item.raw_description}</p>
 
           <div className="space-y-1.5 text-xs text-slate-400">
             <div className="flex items-start gap-1.5">
@@ -198,9 +199,9 @@ export default function ItemCard({ matchResult, onUpdated }: ItemCardProps) {
       </div>
 
       {/* ── MODAL ───────────────────────────────────────────────── */}
-      {isModalOpen && (
+      {isModalOpen && createPortal(
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4"
           onClick={closeModal}
         >
           <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" />
@@ -257,6 +258,35 @@ export default function ItemCard({ matchResult, onUpdated }: ItemCardProps) {
                     >
                       {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                       Ya, Hapus
+                    </button>
+                  </div>
+                </div>
+
+              /* ── RESOLVE VIEW ── */
+              ) : modalView === 'resolve' ? (
+                <div className="text-center py-4">
+                  <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <ShieldCheck className="w-7 h-7 text-emerald-500" />
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-900 mb-2">Kasus Selesai?</h3>
+                  <p className="text-sm text-slate-500 mb-6">
+                    Apakah Anda benar-benar yakin barang ini sudah {isLost ? 'kembali ke tangan Anda' : 'diserahkan ke pemilik aslinya'}? <br/><br/>
+                    <span className="font-semibold text-rose-500">Peringatan:</span> Jangan memanipulasi laporan hanya untuk mendapatkan poin pahlawan. Tindakan ini tidak dapat dibatalkan.
+                  </p>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setModalView('detail')}
+                      className="flex-1 py-2.5 border border-slate-200 rounded-xl text-slate-600 text-sm font-medium hover:bg-slate-50 transition-colors"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      disabled={isProcessing}
+                      onClick={handleResolve}
+                      className="flex-1 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-sm font-semibold transition-colors flex items-center justify-center gap-2 disabled:opacity-60 shadow-sm"
+                    >
+                      {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                      Ya, Selesai
                     </button>
                   </div>
                 </div>
@@ -418,7 +448,7 @@ export default function ItemCard({ matchResult, onUpdated }: ItemCardProps) {
                       <div className="space-y-3">
                         <button
                           disabled={isProcessing}
-                          onClick={handleResolve}
+                          onClick={() => setModalView('resolve')}
                           className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-semibold text-sm transition-colors disabled:opacity-60"
                         >
                           {isProcessing ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className="w-4 h-4" />}
@@ -466,7 +496,8 @@ export default function ItemCard({ matchResult, onUpdated }: ItemCardProps) {
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </>
   );
