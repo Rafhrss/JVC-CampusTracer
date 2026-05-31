@@ -1,73 +1,73 @@
-# React + TypeScript + Vite
+# 🎓 CampusTracer - Sistem Cerdas Lost & Found Kampus
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+![CampusTracer Banner](https://img.shields.io/badge/CampusTracer-Lost_%26_Found-14b8a6?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
+![Cloud Run](https://img.shields.io/badge/Deployed_on-Google_Cloud_Run-4285F4?style=for-the-badge&logo=googlecloud)
 
-Currently, two official plugins are available:
+**CampusTracer** adalah platform pelacakan barang hilang dan ditemukan (*Lost & Found*) revolusioner yang dirancang khusus untuk lingkungan kampus. Menggunakan kekuatan Kecerdasan Buatan (AI) dari Google Gemini, platform ini mampu mencocokkan deskripsi barang yang hilang dengan barang yang ditemukan secara semantik dan cerdas, mematahkan keterbatasan pencarian teks biasa.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+🔗 **Akses Website Live:** [https://jvc-campustracer-309091388704.asia-southeast1.run.app/](https://jvc-campustracer-309091388704.asia-southeast1.run.app/)
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🌟 Fungsi & Fitur Utama
 
-## Expanding the ESLint configuration
+1. **Pencarian AI Semantik Cerdas (AI Search Bar)**
+   Tidak sekadar mencocokkan kata kunci, pencarian didukung oleh **Google Gemini 2.5 Flash** yang menganalisis konteks dan deskripsi rumit untuk menemukan tingkat kecocokan (Match Percentage) barang secara akurat.
+2. **Lapor Cepat (Smart Reporting)**
+   Fitur lapor barang hilang atau ditemukan yang ringkas dan dilengkapi dengan unggah foto bukti.
+3. **Papan Peringkat "Pahlawan Kampus" (Gamifikasi)**
+   Untuk mendorong kejujuran, setiap pengguna yang berhasil mengembalikan barang akan mendapatkan poin apresiasi dan tercatat dalam sistem *Leaderboard* pahlawan bulanan layaknya sistem *Guild Game*.
+4. **Keamanan Ekstra & Verifikasi**
+   Modul konfirmasi bertingkat untuk memastikan bahwa barang yang diserahkan benar-benar diberikan kepada pemilik asli, guna mencegah manipulasi poin.
+5. **Autentikasi Instan**
+   Masuk dengan aman menggunakan sistem *Google Sign-In* (ditenagai oleh Supabase).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 💡 Manfaat (Benefits)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+* **Bagi Mahasiswa/Kehilangan:** Memberikan ketenangan pikiran dan peluang terbesar untuk menemukan barang berharga mereka kembali dengan cepat tanpa harus berkeliling kampus mencari pos satpam.
+* **Bagi Penemu Barang:** Memberikan wadah yang aman dan terstruktur untuk melaporkan temuan, sekaligus mendapatkan apresiasi publik atas kejujuran mereka melalui sistem *Pahlawan Kampus*.
+* **Bagi Pihak Kampus:** Membantu mendigitalisasi layanan *Lost & Found* yang biasanya manual dan berantakan menjadi sistem yang rapi, transparan, dan sangat efisien.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+---
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## 🛠️ Teknologi yang Digunakan (Tech Stack)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Proyek ini dibangun menggunakan teknologi web modern dan infrastruktur *cloud* skala produksi:
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+* **Frontend:** React 19, TypeScript, Vite
+* **Styling & UI:** Tailwind CSS, Lucide Icons, OGL (untuk animasi 3D)
+* **Kecerdasan Buatan (AI):** `@google/generative-ai` (Gemini API untuk Embedding & Analisis Teks)
+* **Backend, Database, & Auth:** Supabase (PostgreSQL, OAuth)
+* **Deployment & Infrastruktur:** Google Cloud Run (Serverless via Buildpacks), Express.js (Runtime Config Injector)
+
+---
+
+## 🚀 Instalasi Lokal (Bagi Pengembang)
+
+Jika Anda ingin menjalankan proyek ini di mesin lokal Anda:
+
+1. Lakukan *clone* repositori ini:
+   \`\`\`bash
+   git clone https://github.com/Rafhrss/JVC-CampusTracer.git
+   \`\`\`
+2. Masuk ke direktori proyek dan instal dependensi:
+   \`\`\`bash
+   cd JVC-CampusTracer
+   npm install
+   \`\`\`
+3. Buat file \`.env\` di direktori *root* dan masukkan kredensial berikut:
+   \`\`\`env
+   VITE_SUPABASE_URL=URL_SUPABASE_ANDA
+   VITE_SUPABASE_ANON_KEY=ANON_KEY_SUPABASE_ANDA
+   VITE_GEMINI_API_KEY=API_KEY_GEMINI_ANDA
+   \`\`\`
+4. Jalankan server pengembangan:
+   \`\`\`bash
+   npm run dev
+   \`\`\`
+
+---
+*Dibuat untuk submisi **JuaraVibeCoding (JVC) / JuaraGCP**.*
